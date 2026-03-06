@@ -55,3 +55,24 @@ class Sala:
         estado = "Libre" if self.disponible else "Ocupada"
         recursos_str = self.listar_nombres_recursos()
         return f"[{self.get_tipo()}] {self.nombre} (Capacidad: {self.capacidad}) - {estado} | Recursos: {recursos_str}"
+
+class SalaReuniones(Sala):
+    def __init__(self, id_sala, nombre, capacidad, disponible=True):
+        super().__init__(id_sala, nombre, capacidad, disponible)
+
+    def get_tipo(self):
+        return "Sala de Reuniones"
+
+class Despacho(Sala):
+    def __init__(self, id_sala, nombre, capacidad, disponible=True):
+        super().__init__(id_sala, nombre, capacidad, disponible)
+
+    def get_tipo(self):
+        return "Despacho"
+
+class EspacioAbierto(Sala):
+    def __init__(self, id_sala, nombre, capacidad, disponible=True):
+        super().__init__(id_sala, nombre, capacidad, disponible)
+
+    def get_tipo(self):
+        return "Espacio Abierto"
