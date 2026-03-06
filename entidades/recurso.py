@@ -10,15 +10,17 @@ class Recurso:
 
     def reservar(self):
         if self.disponible:
+            self.disponible = False
             return True
         else:
             return False
 
     def liberar(self):
         if not self.disponible:
+            self.disponible = True
             return True
 
-    def es_tipo(self):
+    def get_tipo(self):
         return self.tipo
 
     def coincide_id(self, otro_id):
