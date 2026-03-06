@@ -26,8 +26,8 @@ class Reserva:
     def es_del_usuario(self, usuario):
         return self.usuario == usuario
 
-    def es_de_la_sala(self):
-        return self.sala == self.sala
+    def es_de_la_sala(self, otra_sala):
+        return self.sala == otra_sala
 
     def misma_fecha(self, fecha):
         return self.fecha == fecha
