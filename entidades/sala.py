@@ -30,6 +30,9 @@ class Sala:
             return True
         return False
 
+    def puede_reservar(self, usuario):
+        return True
+
     def es_valida(self):
         return self.capacidad > 0
 
@@ -63,6 +66,9 @@ class SalaReuniones(Sala):
     def get_tipo(self):
         return "Sala de Reuniones"
 
+    def puede_reservar(self, usuario):
+        return super().puede_reservar(usuario)
+
 class Despacho(Sala):
     def __init__(self, id_sala, nombre, capacidad, disponible=True):
         super().__init__(id_sala, nombre, capacidad, disponible)
@@ -70,9 +76,15 @@ class Despacho(Sala):
     def get_tipo(self):
         return "Despacho"
 
+    def puede_reservar(self, usuario):
+        return usuario.es_premium() or usuario.es_admin()
+
 class EspacioAbierto(Sala):
     def __init__(self, id_sala, nombre, capacidad, disponible=True):
         super().__init__(id_sala, nombre, capacidad, disponible)
 
     def get_tipo(self):
         return "Espacio Abierto"
+
+    def puede_reservar(self, usuario):
+        return super().puede_reservar(usuario)
