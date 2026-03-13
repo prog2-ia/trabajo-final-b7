@@ -1,16 +1,16 @@
 class Sala:
-    def __init__(self, id, nombre, tipo, capacidad, disponible):
-        self.id = id
+    def __init__(self, id_sala, nombre, capacidad, disponible=True):
+        self.id_sala = id_sala
         self.nombre = nombre
-        self.tipo = tipo
         self.capacidad = capacidad
         self.disponible = disponible
+        self.recursos = []
 
     def get_capacidad(self):
         return self.capacidad
 
     def get_tipo(self):
-        return self.tipo
+        return "Sala Genérica"
 
     def esta_disponible(self):
         return self.disponible
@@ -22,15 +22,69 @@ class Sala:
         if self.disponible:
             self.disponible = False
             return True
-        else:
-            return False
+        return False
 
     def liberar(self):
         if not self.disponible:
             self.disponible = True
             return True
-        else:
-            return False
+        return False
+
+    def puede_reservar(self, usuario):
+        return True
 
     def es_valida(self):
         return self.capacidad > 0
+
+    def agregar_recurso(self, recurso):
+        self.recursos.append(recurso)
+
+    def quitar_recurso(self, id_recurso):
+        for recurso in self.recursos:
+            if recurso.coincide_id(id_recurso):
+                self.recursos.remove(recurso)
+                return recurso
+        return None
+
+    def listar_nombres_recursos(self):
+        if not self.recursos:
+            return "Ninguno"
+        nombres = []
+        for r in self.recursos:
+            nombres.append(r.nombre)
+        return ", ".join(nombres)
+
+    def __str__(self):
+        estado = "Libre" if self.disponible else "Ocupada"
+        recursos_str = self.listar_nombres_recursos()
+        return f"[{self.get_tipo()}] {self.nombre} (Capacidad: {self.capacidad}) - {estado} | Recursos: {recursos_str}"
+
+class SalaReuniones(Sala):
+    def __init__(self, id_sala, nombre, capacidad, disponible=True):
+        super().__init__(id_sala, nombre, capacidad, disponible)
+
+    def get_tipo(self):
+        return "Sala de Reuniones"
+
+    def puede_reservar(self, usuario):
+        return super().puede_reservar(usuario)
+
+class Despacho(Sala):
+    def __init__(self, id_sala, nombre, capacidad, disponible=True):
+        super().__init__(id_sala, nombre, capacidad, disponible)
+
+    def get_tipo(self):
+        return "Despacho"
+
+    def puede_reservar(self, usuario):
+        return usuario.es_premium() or usuario.es_admin()
+
+class EspacioAbierto(Sala):
+    def __init__(self, id_sala, nombre, capacidad, disponible=True):
+        super().__init__(id_sala, nombre, capacidad, disponible)
+
+    def get_tipo(self):
+        return "Espacio Abierto"
+
+    def puede_reservar(self, usuario):
+        return super().puede_reservar(usuario)
