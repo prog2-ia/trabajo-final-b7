@@ -33,10 +33,10 @@ class Usuario:
         return self.tipo
 
     def es_admin(self):
-        return True if self.tipo == 2 else False
+        return self.tipo == 2
 
     def es_premium(self):
-        return True if self.tipo == 1 else False
+        return self.tipo == 1
 
     def set_email(self, email):
         self.email = email
@@ -45,6 +45,9 @@ class Usuario:
     def set_username(self, username):
         self.username = username
         return True  # TODO: Cuando demos en clase control de excepciones no siempre será True
+
+    def puede_reservar_sala(self,sala):
+        return sala.puede_reservar(self)
 
     def __str__(self):
         return f'''
@@ -55,3 +58,20 @@ class Usuario:
         Telefono: {self.telefono}
         Tipo: {"Premium" if self.tipo == 1 else "Admin" if self.tipo == 2 else "Normal"}
         '''
+
+
+class UsuarioNormal(Usuario):
+    def __init__(self, dni, username, nombre, apellidos, email, telefono):
+        super().__init__(dni, username, nombre, apellidos, email, telefono, 0)
+
+
+
+class UsuarioPremium(Usuario):
+    def __init__(self, dni, username, nombre, apellidos, email, telefono):
+        super().__init__(dni, username, nombre, apellidos, email, telefono, 1)
+
+
+class Admin(Usuario):
+    def __init__(self, dni, username, nombre, apellidos, email, telefono):
+        super().__init__(dni, username, nombre, apellidos, email, telefono, 2)
+
