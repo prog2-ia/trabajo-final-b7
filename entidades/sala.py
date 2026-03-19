@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 class Sala(ABC):
 
-    def __init__(self, id_sala, nombre, capacidad, disponible):
+    def __init__(self, id_sala, nombre, capacidad, disponible=True):
 
         self.__id_sala = id_sala
         self.__nombre = nombre
@@ -99,7 +99,7 @@ class Sala(ABC):
 
 class SalaReuniones(Sala):
 
-    def __init__(self, id_sala, nombre, capacidad, disponible):
+    def __init__(self, id_sala, nombre, capacidad, disponible=True):
         super().__init__(id_sala, nombre, capacidad, disponible)
 
     def get_tipo(self):
@@ -111,7 +111,7 @@ class SalaReuniones(Sala):
 
 class Despacho(Sala):
 
-    def __init__(self, id_sala, nombre, capacidad, disponible):
+    def __init__(self, id_sala, nombre, capacidad, disponible=True):
         super().__init__(id_sala, nombre, capacidad, disponible)
 
     def get_tipo(self):
@@ -123,7 +123,7 @@ class Despacho(Sala):
 
 class EspacioAbierto(Sala):
 
-    def __init__(self, id_sala, nombre, capacidad, disponible):
+    def __init__(self, id_sala, nombre, capacidad, disponible=True):
         super().__init__(id_sala, nombre, capacidad, disponible)
 
     def get_tipo(self):

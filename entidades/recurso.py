@@ -1,6 +1,6 @@
 class Recurso:
 
-    def __init__(self, id, nombre, tipo, disponible):
+    def __init__(self, id, nombre, tipo, disponible=True):
         self.__id = id
         self.__nombre = nombre
         self.__tipo = tipo
