@@ -1,5 +1,5 @@
 from ui.menu import iniciar_interfaz
-from entidades.gestorreserva import GestorReservas
+from servicios.gestorreserva import GestorReservas
 
 def main():
     sistema = GestorReservas()
