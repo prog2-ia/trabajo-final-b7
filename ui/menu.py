@@ -4,19 +4,25 @@ from entidades.sala import SalaReuniones, Despacho, EspacioAbierto
 
 
 def mostrar_opciones():
-    print("\n" + "=" * 35)
-    print("GESTOR DE RESERVAS COWORKING")
-    print("=" * 35)
+    print("\n" + "=" * 40)
+    print("  GESTOR DE RESERVAS COWORKING")
+    print("=" * 40)
     print("1. Crear nuevo usuario")
     print("2. Crear nueva sala")
-    print("3. Crear nuevo recurso")
+    print("3. Crear y asignar recurso a sala")
     print("4. Crear nueva reserva")
     print("5. Listar todas las reservas")
+    print("6. Listar todos los usuarios")
+    print("7. Listar todas las salas")
+    print("8. Editar reserva")
+    print("9. Cancelar reserva")
+    print("10. Filtrar reservas")
     print("s. Salir del programa")
-    print("=" * 35)
+    print("=" * 40)
 
 
 def iniciar_interfaz(gestor):
+    """Bucle principal de la interfaz de usuario por consola."""
     while True:
         mostrar_opciones()
         opcion = input("Selecciona una opción: ").strip().lower()
@@ -45,13 +51,12 @@ def iniciar_interfaz(gestor):
                 nuevo_usr = UsuarioNormal(dni, username, nombre, apellidos, email, tlf)
 
             gestor.agregar_usuario(nuevo_usr)
-            print(f"Usuario '{username}' creado y añadido al gestor con éxito.")
+            print(f"Usuario '{username}' creado y añadido con éxito.")
 
         elif opcion == '2':
             print("\n--- CREAR NUEVA SALA ---")
             id_sala = input("ID de la Sala (ej. SR-02): ")
             nombre = input("Nombre descriptivo: ")
-
             capacidad = int(input("Capacidad máxima (nº de personas): "))
 
             print("Tipos de sala: [1] Sala de Reuniones | [2] Despacho | [3] Espacio Abierto")
@@ -68,30 +73,55 @@ def iniciar_interfaz(gestor):
             print(f"Sala '{nombre}' (ID: {id_sala}) creada con éxito.")
 
         elif opcion == '3':
-            print("\n--- CREAR NUEVO RECURSO ---")
-            id = input("ID del recurso (ej. PZ-02): ")
+            print("\n--- CREAR Y ASIGNAR RECURSO ---")
+            id_recurso = input("ID del recurso (ej. PZ-02): ")
             nombre = input("Nombre descriptivo: ")
-            # TODO: Mejoraremos esto en un futuro para implementar herencia para recursos.
-            tipo = input("Tipo de recurso: ")
+            tipo_rec = input("Tipo de recurso: ")
+            id_sala = input("ID de la sala a la que se va a asignar: ")
 
-            # TODO: Realmente poder añadir recursos a salas mediante el gestor.
-            nuevo_recurso = Recurso(id, nombre, tipo)
+            nuevo_recurso = Recurso(id_recurso, nombre, tipo_rec)
+            gestor.asociar_recurso_a_sala(nuevo_recurso, id_sala)
 
         elif opcion == '4':
             print("\n--- CREAR NUEVA RESERVA ---")
             dni_usr = input("DNI del Usuario: ")
             id_sala = input("ID de la Sala: ")
             fecha = input("Fecha (YYYY-MM-DD): ")
-
-            # TODO: Gestionar horas reales y no con números
-            hora_inicio = float(input("Hora de inicio (ej. 10.5 para las 10:30): "))
-            hora_fin = float(input("Hora de fin (ej. 12.0 para las 12:00): "))
-            num_personas = int(input("Número de personas que asistirán: "))
+            hora_inicio = float(input("Hora de inicio (ej. 10.5): "))
+            hora_fin = float(input("Hora de fin (ej. 12.0): "))
+            num_personas = int(input("Número de personas: "))
 
             gestor.crear_reserva(dni_usr, id_sala, fecha, hora_inicio, hora_fin, num_personas)
 
         elif opcion == '5':
             gestor.listar_reservas()
 
+        elif opcion == '6':
+            gestor.listar_usuarios()
+
+        elif opcion == '7':
+            gestor.listar_salas()
+
+        elif opcion == '8':
+            print("\n--- EDITAR RESERVA ---")
+            id_res = input("ID de la reserva a modificar (ej. RES-1): ")
+            f_nueva = input("Nueva fecha (YYYY-MM-DD): ")
+            h_ini = float(input("Nueva hora inicio: "))
+            h_fin = float(input("Nueva hora fin: "))
+            gestor.editar_reserva(id_res, f_nueva, h_ini, h_fin)
+
+        elif opcion == '9':
+            print("\n--- CANCELAR RESERVA ---")
+            id_res = input("ID de la reserva a cancelar: ")
+            gestor.cancelar_reserva(id_res)
+
+        elif opcion == '10':
+            print("\n--- FILTRAR RESERVAS ---")
+            print("(Dejar vacío para omitir filtro)")
+            f = input("Fecha (YYYY-MM-DD): ").strip() or None
+            s = input("ID Sala: ").strip() or None
+            u = input("DNI Usuario: ").strip() or None
+            gestor.filtrar_reservas(fecha=f, id_sala=s, dni_usuario=u)
+
         else:
-            print("Opción no válida. Por favor, introduce un número del 1 al 4, o 's' para salir.")
+            print("Opción no válida. Inténtalo de nuevo.")

@@ -73,3 +73,80 @@ class GestorReservas:
         for reservas in self.__reservas:
             print(
                 f"[{reservas.id}] Sala: {reservas.get_sala().nombre} | Fecha: {reservas.get_fecha()} | Horario: {reservas.hora_inicio}h - {reservas.hora_fin}h | Usuario: {reservas.get_usuario().get_username()}")
+
+    def listar_usuarios(self):
+        print("\n--- LISTADO DE USUARIOS ---")
+        if not self.__usuarios:
+            print("No hay usuarios en el sistema.")
+        for usr in self.__usuarios:
+            print(f"- {usr.get_dni()} | {usr.get_username()} | {usr.get_nombre_completo()} | Tipo: {usr.get_tipo()}")
+
+    def listar_salas(self):
+        print("\n--- LISTADO DE SALAS ---")
+        if not self.__salas:
+            print("No hay salas en el sistema.")
+        for sala in self.__salas:
+            print(sala)  # Esto usará el método __str__ definido en Sala
+
+    def buscar_reserva_por_id(self, id_reserva):
+        for reserva in self.__reservas:
+            if reserva.id == id_reserva:
+                return reserva
+        return None
+
+    def cancelar_reserva(self, id_reserva):
+        reserva = self.buscar_reserva_por_id(id_reserva)
+        if reserva:
+            self.__reservas.remove(reserva)
+            print(f"Reserva '{id_reserva}' cancelada con éxito.")
+            return True
+        print("Error: No se ha encontrado ninguna reserva con ese ID.")
+        return False
+
+    def editar_reserva(self, id_reserva, nueva_fecha, nueva_hora_inicio, nueva_hora_fin):
+        reserva = self.buscar_reserva_por_id(id_reserva)
+        if not reserva:
+            print("Error: No se ha encontrado la reserva.")
+            return False
+
+            # Retiramos temporalmente la reserva para que no genere solape consigo misma al comprobar
+        self.__reservas.remove(reserva)
+
+        if self.comprobar_disponibilidad(reserva.get_sala(), nueva_fecha, nueva_hora_inicio, nueva_hora_fin):
+                # Usamos los setters definidos en Reserva
+            reserva.fecha = nueva_fecha
+            reserva.hora_inicio = nueva_hora_inicio
+            reserva.hora_fin = nueva_hora_fin
+            self.__reservas.append(reserva)
+            print(f"Reserva '{id_reserva}' actualizada correctamente.")
+            return True
+        else:
+            # Si no hay disponibilidad, volvemos a meter la reserva original y fallamos
+            self.__reservas.append(reserva)
+            print("Error: La sala no está disponible en ese nuevo horario.")
+            return False
+
+    def filtrar_reservas(self, fecha=None, id_sala=None, dni_usuario=None):
+        resultados = self.__reservas
+
+        if fecha:
+            resultados = [r for r in resultados if r.get_fecha() == fecha]
+        if id_sala:
+            resultados = [r for r in resultados if r.get_sala().id_sala == id_sala]
+        if dni_usuario:
+            resultados = [r for r in resultados if r.get_usuario().get_dni() == dni_usuario]
+
+        print("\n--- RESULTADOS DEL FILTRO ---")
+        if not resultados:
+            print("No se encontraron reservas con esos criterios.")
+        for r in resultados:
+            print(f"[{r.id}] Sala: {r.get_sala().nombre} | Fecha: {r.get_fecha()} | Horario: {r.hora_inicio}h - {r.hora_fin}h | Usuario: {r.get_usuario().get_username()}")
+
+    def asociar_recurso_a_sala(self, recurso, id_sala):
+        sala = self.buscar_sala_por_id(id_sala)
+        if sala:
+            sala.agregar_recurso(recurso)
+            print(f"Recurso '{recurso.nombre}' añadido exitosamente a la sala '{sala.nombre}'.")
+            return True
+        print("Error: Sala no encontrada.")
+        return False
