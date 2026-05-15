@@ -1,3 +1,6 @@
+from datetime import datetime, date, time, timedelta
+
+
 class Reserva:
 
     def __init__(self, id, usuario, sala, fecha, hora_inicio, hora_fin, num_personas):
@@ -75,7 +78,10 @@ class Reserva:
         return self.__fecha
 
     def duracion(self):
-        return self.__hora_fin - self.__hora_inicio
+        # Devuelve un timedelta con la duración entre inicio y fin
+        inicio_dt = datetime.combine(self.__fecha, self.__hora_inicio)
+        fin_dt = datetime.combine(self.__fecha, self.__hora_fin)
+        return fin_dt - inicio_dt
 
     def capacidad_correcta(self, otra_capacidad):
         return not otra_capacidad > self.__num_personas
@@ -90,4 +96,11 @@ class Reserva:
         return self.__fecha == fecha
 
     def hay_solape(self, fecha, inicio, fin):
-        return self.__fecha == fecha and self.__hora_inicio == inicio and self.__hora_fin == fin
+        # Comprueba si la reserva está en la misma fecha y las ventanas horarias se solapan
+        if self.__fecha != fecha:
+            return False
+        inicio_dt = datetime.combine(self.__fecha, self.__hora_inicio)
+        fin_dt = datetime.combine(self.__fecha, self.__hora_fin)
+        inicio_n = datetime.combine(fecha, inicio)
+        fin_n = datetime.combine(fecha, fin)
+        return inicio_n < fin_dt and fin_n > inicio_dt
