@@ -5,6 +5,7 @@ operaciones para crear reservas comprobando permisos, capacidad y solapes.
 """
 
 from entidades.reserva import Reserva
+from persistencia.persistencia import Persistencia
 from datetime import datetime, date, time
 
 
@@ -48,14 +49,41 @@ class GestorReservas:
         self.__salas = []
         self.__reservas = []
         self.__contador_reservas = 1
+        self.__persistencia = Persistencia()
+        try:
+            self.__persistencia.cargar_todos(self, carpeta='./archivos')
+        except Exception:
+            print("Aviso: no se pudo cargar persistencia al iniciar.")
+
+    def obtener_estado(self):
+        return {
+            "usuarios": list(self.__usuarios),
+            "salas": list(self.__salas),
+            "reservas": list(self.__reservas),
+            "contador_reservas": self.__contador_reservas,
+        }
+
+    def cargar_estado(self, estado):
+        self.__usuarios = estado.get("usuarios", [])
+        self.__salas = estado.get("salas", [])
+        self.__reservas = estado.get("reservas", [])
+        self.__contador_reservas = estado.get("contador_reservas", 1)
 
     def agregar_usuario(self, usuario):
         """Añade un usuario al gestor."""
         self.__usuarios.append(usuario)
+        try:
+            self.__persistencia.guardar_todos(self)
+        except Exception:
+            pass
 
     def agregar_sala(self, sala):
         """Añade una sala al gestor."""
         self.__salas.append(sala)
+        try:
+            self.__persistencia.guardar_todos(self)
+        except Exception:
+            pass
 
     def buscar_usuario_por_dni(self, dni):
         """Busca y devuelve un usuario por su DNI, o None si no existe."""
@@ -135,6 +163,11 @@ class GestorReservas:
         self.__reservas.append(nueva_reserva)
         self.__contador_reservas += 1
 
+        try:
+            self.__persistencia.guardar_todos(self)
+        except Exception:
+            pass
+
         print(f"Reserva {id_reserva} creada correctamente para {usuario.get_nombre_completo()}.")
         return True
 
@@ -149,3 +182,120 @@ class GestorReservas:
             fin_str = reservas.hora_fin.strftime("%H:%M") if hasattr(reservas.hora_fin, 'strftime') else str(reservas.hora_fin)
             print(
                 f"[{reservas.id}] Sala: {reservas.get_sala().nombre} | Fecha: {fecha_str} | Horario: {inicio_str} - {fin_str} | Usuario: {reservas.get_usuario().get_username()}")
+            
+    
+    def listar_usuarios(self):
+        print("\n--- LISTADO DE USUARIOS ---")
+        if not self.__usuarios:
+            print("No hay usuarios en el sistema.")
+        for usr in self.__usuarios:
+            print(f"- {usr.get_dni()} | {usr.get_username()} | {usr.get_nombre_completo()} | Tipo: {usr.get_tipo()}")
+
+    def listar_salas(self):
+        print("\n--- LISTADO DE SALAS ---")
+        if not self.__salas:
+            print("No hay salas en el sistema.")
+        for sala in self.__salas:
+            print(sala)  # Esto usará el método __str__ definido en Sala
+
+    def buscar_reserva_por_id(self, id_reserva):
+        for reserva in self.__reservas:
+            if reserva.id == id_reserva:
+                return reserva
+        return None
+
+    def cancelar_reserva(self, id_reserva):
+        reserva = self.buscar_reserva_por_id(id_reserva)
+        if reserva:
+            self.__reservas.remove(reserva)
+            try:
+                self.__persistencia.guardar_todos(self)
+            except Exception:
+                pass
+            print(f"Reserva '{id_reserva}' cancelada con éxito.")
+            return True
+        print("Error: No se ha encontrado ninguna reserva con ese ID.")
+        return False
+
+    def editar_reserva(self, id_reserva, nueva_fecha, nueva_hora_inicio, nueva_hora_fin):
+        reserva = self.buscar_reserva_por_id(id_reserva)
+        if not reserva:
+            print("Error: No se ha encontrado la reserva.")
+            return False
+
+            # Retiramos temporalmente la reserva para que no genere solape consigo misma al comprobar
+        self.__reservas.remove(reserva)
+
+        if self.comprobar_disponibilidad(reserva.get_sala(), nueva_fecha, nueva_hora_inicio, nueva_hora_fin):
+                # Usamos los setters definidos en Reserva
+            reserva.fecha = nueva_fecha
+            reserva.hora_inicio = nueva_hora_inicio
+            reserva.hora_fin = nueva_hora_fin
+            self.__reservas.append(reserva)
+            try:
+                self.__persistencia.guardar_todos(self)
+            except Exception:
+                pass
+            print(f"Reserva '{id_reserva}' actualizada correctamente.")
+            return True
+        else:
+            # Si no hay disponibilidad, volvemos a meter la reserva original y fallamos
+            self.__reservas.append(reserva)
+            print("Error: La sala no está disponible en ese nuevo horario.")
+            return False
+
+    def filtrar_reservas(self, fecha=None, id_sala=None, dni_usuario=None):
+        resultados = self.__reservas
+
+        if fecha:
+            resultados = [r for r in resultados if r.get_fecha() == fecha]
+        if id_sala:
+            resultados = [r for r in resultados if r.get_sala().id_sala == id_sala]
+        if dni_usuario:
+            resultados = [r for r in resultados if r.get_usuario().get_dni() == dni_usuario]
+
+        print("\n--- RESULTADOS DEL FILTRO ---")
+        if not resultados:
+            print("No se encontraron reservas con esos criterios.")
+        for r in resultados:
+            print(f"[{r.id}] Sala: {r.get_sala().nombre} | Fecha: {r.get_fecha()} | Horario: {r.hora_inicio}h - {r.hora_fin}h | Usuario: {r.get_usuario().get_username()}")
+
+    def asociar_recurso_a_sala(self, recurso, id_sala):
+        sala = self.buscar_sala_por_id(id_sala)
+        if sala:
+            sala.agregar_recurso(recurso)
+            try:
+                self.__persistencia.guardar_todos(self)
+            except Exception:
+                pass
+            print(f"Recurso '{recurso.nombre}' añadido exitosamente a la sala '{sala.nombre}'.")
+            return True
+        print("Error: Sala no encontrada.")
+        return False
+
+    def guardar_txt(self, ruta):
+        try:
+            self.__persistencia.guardar_todos(self, carpeta=ruta)
+            print("Guardado en txt correcto.")
+            return True
+        except Exception as e:
+            print("Error guardando txt.")
+            return False
+
+    def guardar_backup(self, ruta):
+        try:
+            self.__persistencia.guardar_backup(ruta, self)
+            print("Backup creado.")
+            return True
+        except Exception:
+            print("Error creando backup.")
+            return False
+
+    def restaurar_backup(self, ruta):
+        try:
+            self.__persistencia.restaurar_backup(ruta, self)
+            print("Backup restaurado.")
+            return True
+        except Exception:
+            print("Error restaurando backup.")
+            return False

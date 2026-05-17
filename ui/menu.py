@@ -18,6 +18,8 @@ def mostrar_opciones():
     print("8. Editar reserva")
     print("9. Cancelar reserva")
     print("10. Filtrar reservas")
+    print("11. Guardar backup (pickle)")
+    print("12. Restaurar backup (pickle)")
     print("s. Salir del programa")
     print("=" * 40)
 
@@ -176,6 +178,14 @@ def iniciar_interfaz(gestor):
             s = input("ID Sala: ").strip() or None
             u = input("DNI Usuario: ").strip() or None
             gestor.filtrar_reservas(fecha=f, id_sala=s, dni_usuario=u)
+
+        elif opcion == '11':
+            ruta = './archivos/' +input("Nombre fichero backup (por defecto backup.pkl): ").strip() or "./archivos/backup.pkl"
+            gestor.guardar_backup(ruta)
+
+        elif opcion == '12':
+            ruta = './archivos/' + input("Nombre fichero backup a restaurar (por defecto backup.pkl): ").strip() or "./archivos/backup.pkl"
+            gestor.restaurar_backup(ruta)
 
         else:
             print("Opción no válida. Inténtalo de nuevo.")
