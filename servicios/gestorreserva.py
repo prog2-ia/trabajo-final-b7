@@ -217,12 +217,20 @@ class GestorReservas:
             print("Error: No se ha encontrado la reserva.")
             return False
 
+        try:
+            nueva_fecha_n = _comprobar_formato_fecha(nueva_fecha)
+            nueva_hora_inicio_n = _comprobar_formato_hora(nueva_hora_inicio)
+            nueva_hora_fin_n = _comprobar_formato_hora(nueva_hora_fin)
+        except ValueError as e:
+            print(f"Error: {e}")
+            return False
+
         self.__reservas.remove(reserva)
 
-        if self.comprobar_disponibilidad(reserva.get_sala(), nueva_fecha, nueva_hora_inicio, nueva_hora_fin):
-            reserva.fecha = nueva_fecha
-            reserva.hora_inicio = nueva_hora_inicio
-            reserva.hora_fin = nueva_hora_fin
+        if self.comprobar_disponibilidad(reserva.get_sala(), nueva_fecha_n, nueva_hora_inicio_n, nueva_hora_fin_n):
+            reserva.fecha = nueva_fecha_n
+            reserva.hora_inicio = nueva_hora_inicio_n
+            reserva.hora_fin = nueva_hora_fin_n
             self.__reservas.append(reserva)
             try:
                 self.__persistencia.guardar_todos(self)
