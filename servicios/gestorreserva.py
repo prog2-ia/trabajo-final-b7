@@ -77,16 +77,16 @@ class GestorReservas:
         self.__usuarios.append(usuario)
         try:
             self.__persistencia.guardar_todos(self)
-        except Exception:
-            pass
+        except (OSError, IOError) as e:
+            print(f"ERROR: No se pudo guardar el usuario. {e}")
 
     # Añade de forma persistente una sala en su lista.
     def agregar_sala(self, sala: Sala) -> None:
         self.__salas.append(sala)
         try:
             self.__persistencia.guardar_todos(self)
-        except Exception:
-            pass
+        except (OSError, IOError) as e:
+            print(f"ERROR: No se pudo guardar la sala. {e}")
 
     # Módulo de busqueda simple hacia usuarios mediante DNI.
     def buscar_usuario_por_dni(self, dni: str) -> Usuario | None:
@@ -142,7 +142,7 @@ class GestorReservas:
             inicio_n = _comprobar_formato_hora(hora_inicio)
             fin_n = _comprobar_formato_hora(hora_fin)
         except ValueError as e:
-            print(f"Error: {e}")
+            print(f"ERROR: {e}")
             return False
 
         if not self.comprobar_disponibilidad(sala, fecha_n, inicio_n, fin_n):
@@ -157,8 +157,8 @@ class GestorReservas:
 
         try:
             self.__persistencia.guardar_todos(self)
-        except Exception:
-            pass
+        except (OSError, IOError) as e:
+            print(f"ERROR: No se pudo guardar la reserva. {e}")
 
         print(f"Reserva {id_reserva} creada correctamente para {usuario.get_nombre_completo()}.")
         return True
@@ -203,8 +203,8 @@ class GestorReservas:
             self.__reservas.remove(reserva)
             try:
                 self.__persistencia.guardar_todos(self)
-            except Exception:
-                pass
+            except (OSError, IOError) as e:
+                print(f"ERROR: No se pudo guardar la reserva. {e}")
             print(f"Reserva '{id_reserva}' cancelada con éxito.")
             return True
         print("Error: No se ha encontrado ninguna reserva con ese ID.")
@@ -222,7 +222,7 @@ class GestorReservas:
             nueva_hora_inicio_n = _comprobar_formato_hora(nueva_hora_inicio)
             nueva_hora_fin_n = _comprobar_formato_hora(nueva_hora_fin)
         except ValueError as e:
-            print(f"Error: {e}")
+            print(f"ERROR: {e}")
             return False
 
         self.__reservas.remove(reserva)
@@ -234,8 +234,8 @@ class GestorReservas:
             self.__reservas.append(reserva)
             try:
                 self.__persistencia.guardar_todos(self)
-            except Exception:
-                pass
+            except (OSError, IOError) as e:
+                print(f"ERROR: No se pudo guardar la reserva. {e}")
             print(f"Reserva '{id_reserva}' actualizada correctamente.")
             return True
         else:
@@ -267,8 +267,8 @@ class GestorReservas:
             sala.agregar_recurso(recurso)
             try:
                 self.__persistencia.guardar_todos(self)
-            except Exception:
-                pass
+            except (OSError, IOError) as e:
+                print(f"ERROR: No se pudo guardar el recurso. {e}")
             print(f"Recurso '{recurso.nombre}' añadido exitosamente a la sala '{sala.nombre}'.")
             return True
         print("Error: Sala no encontrada.")
@@ -279,8 +279,8 @@ class GestorReservas:
             self.__persistencia.guardar_todos(self, carpeta=ruta)
             print("Guardado en txt correcto.")
             return True
-        except Exception:
-            print("Error guardando txt.")
+        except (OSError, IOError) as e:
+            print(f"ERROR: No se pudo guardar el archivo txt. {e}")
             return False
 
     def guardar_backup(self, ruta: str) -> bool:
@@ -288,8 +288,8 @@ class GestorReservas:
             self.__persistencia.guardar_backup(ruta, self)
             print("Backup creado.")
             return True
-        except Exception:
-            print("Error creando backup.")
+        except (OSError, IOError) as e:
+            print(f"ERROR: {e}")
             return False
 
     def restaurar_backup(self, ruta: str) -> bool:
@@ -297,6 +297,6 @@ class GestorReservas:
             self.__persistencia.restaurar_backup(ruta, self)
             print("Backup restaurado.")
             return True
-        except Exception:
-            print("Error restaurando backup.")
+        except (OSError, IOError, FileNotFoundError) as e:
+            print(f"ERROR: No se pudo restaurar el backup. {e}")
             return False

@@ -5,6 +5,13 @@ from entidades.usuario import UsuarioNormal, UsuarioPremium, Admin, Usuario
 from entidades.sala import SalaReuniones, Despacho, EspacioAbierto, Sala
 
 
+from datetime import datetime
+from typing import Any
+from entidades.recurso import Recurso
+from entidades.usuario import UsuarioNormal, UsuarioPremium, Admin, Usuario
+from entidades.sala import SalaReuniones, Despacho, EspacioAbierto, Sala
+
+
 # Imprime las opciones del menú principal.
 def mostrar_opciones() -> None:
     print("\n" + "=" * 40)
@@ -32,7 +39,8 @@ def leer_entero(mensaje: str) -> int:
         try:
             return int(input(mensaje))
         except ValueError:
-            print("  -> ¡Error! Debes introducir un número entero válido (ej. 10).")
+            print("Error: Debes introducir un número entero válido (ej. 10).")
+
 
 
 # Controla el formato de entrada para números decimales mediante un bucle de gestión de excepciones.
@@ -41,7 +49,7 @@ def leer_flotante(mensaje: str) -> float:
         try:
             return float(input(mensaje))
         except ValueError:
-            print("  -> ¡Error! Debes introducir un número decimal válido (ej. 10.5).")
+            print("Error: Debes introducir un número decimal válido (ej. 10.5).")
 
 # Valida y retorna una opción de las permitidas.
 def leer_opcion(mensaje: str, opciones_validas: list[str]) -> str:
@@ -49,7 +57,7 @@ def leer_opcion(mensaje: str, opciones_validas: list[str]) -> str:
         opcion: str = input(mensaje).strip()
         if opcion in opciones_validas:
             return opcion
-        print(f"  -> ¡Error! Opción no válida. Selecciona una de estas: {', '.join(opciones_validas)}")
+        print(f"Error: Opción no válida. Selecciona una de estas: {', '.join(opciones_validas)}")
 
 # Verifica el formato de datos temporales (fecha).
 def leer_fecha(mensaje: str, opcional: bool = False) -> str | None:
@@ -61,7 +69,7 @@ def leer_fecha(mensaje: str, opcional: bool = False) -> str | None:
             datetime.strptime(fecha_str, "%Y-%m-%d")
             return fecha_str
         except ValueError:
-            print("  -> ¡Error! El formato debe ser YYYY-MM-DD y ser una fecha real (ej. 2024-12-31).")
+            print("Error: El formato debe ser YYYY-MM-DD y ser una fecha real (ej. 2024-12-31).")
 
 # Comprueba la congruencia temporal entre dos horas y asegura que la hora de inicio no sea mayor.
 def leer_rango_horas(mensaje_inicio: str, mensaje_fin: str) -> tuple[float, float]:
@@ -70,7 +78,7 @@ def leer_rango_horas(mensaje_inicio: str, mensaje_fin: str) -> tuple[float, floa
         h_fin: float = leer_flotante(mensaje_fin)
         if h_ini < h_fin:
             return h_ini, h_fin
-        print("  -> ¡Error Lógico! La hora de inicio no puede ser igual o posterior a la hora de fin. Inténtalo de nuevo.")
+        print("Error: La hora de inicio no puede ser igual o posterior a la hora de fin. Inténtalo de nuevo.")
 
 # Ejecuta el bucle del programa.
 def iniciar_interfaz(gestor: Any) -> None:
@@ -103,7 +111,11 @@ def iniciar_interfaz(gestor: Any) -> None:
                 nuevo_usr = UsuarioNormal(dni, username, nombre, apellidos, email, tlf)
 
             gestor.agregar_usuario(nuevo_usr)
-            print(f"Usuario '{username}' creado y añadido con éxito.")
+            try:
+                gestor.agregar_usuario(nuevo_usr)
+                print(f"Usuario '{username}' creado y añadido con éxito.")
+            except Exception as e:
+                print(f"ERROR: {e}")
 
         elif opcion == '2':
             print("\n--- CREAR NUEVA SALA ---")
@@ -124,7 +136,11 @@ def iniciar_interfaz(gestor: Any) -> None:
                 nueva_sala = SalaReuniones(id_sala, nombre, capacidad)
 
             gestor.agregar_sala(nueva_sala)
-            print(f"Sala '{nombre}' (ID: {id_sala}) creada con éxito.")
+            try:
+                gestor.agregar_sala(nueva_sala)
+                print(f"Sala '{nombre}' (ID: {id_sala}) creada con éxito.")
+            except Exception as e:
+                print(f"ERROR: {e}")
 
         elif opcion == '3':
             print("\n--- CREAR Y ASIGNAR RECURSO ---")
@@ -134,7 +150,10 @@ def iniciar_interfaz(gestor: Any) -> None:
             id_sala = input("ID de la sala a la que se va a asignar: ").strip()
 
             nuevo_recurso: Recurso = Recurso(id_recurso, nombre, tipo_rec)
-            gestor.asociar_recurso_a_sala(nuevo_recurso, id_sala)
+            try:
+                gestor.asociar_recurso_a_sala(nuevo_recurso, id_sala)
+            except Exception as e:
+                print(f"ERROR: {e}")
 
         elif opcion == '4':
             print("\n--- CREAR NUEVA RESERVA ---")
@@ -146,16 +165,28 @@ def iniciar_interfaz(gestor: Any) -> None:
             hora_fin: float = leer_flotante("Hora de fin (ej. 12.0): ")
             num_personas: int = leer_entero("Número de personas: ")
 
-            gestor.crear_reserva(dni_usr, id_sala, fecha, hora_inicio, hora_fin, num_personas)
+            try:
+                gestor.crear_reserva(dni_usr, id_sala, fecha, hora_inicio, hora_fin, num_personas)
+            except Exception as e:
+                print(f"ERROR: {e}")
 
         elif opcion == '5':
-            gestor.listar_reservas()
+            try:
+                gestor.listar_reservas()
+            except Exception as e:
+                print(f"ERROR: {e}")
 
         elif opcion == '6':
-            gestor.listar_usuarios()
+            try:
+                gestor.listar_usuarios()
+            except Exception as e:
+                print(f"ERROR: {e}")
 
         elif opcion == '7':
-            gestor.listar_salas()
+            try:
+                gestor.listar_salas()
+            except Exception as e:
+                print(f"ERROR: {e}")
 
         elif opcion == '8':
             print("\n--- EDITAR RESERVA ---")
@@ -165,12 +196,18 @@ def iniciar_interfaz(gestor: Any) -> None:
             h_ini: float = leer_flotante("Nueva hora inicio: ")
             h_fin: float = leer_flotante("Nueva hora fin: ")
 
-            gestor.editar_reserva(id_res, f_nueva, h_ini, h_fin)
+            try:
+                gestor.editar_reserva(id_res, f_nueva, h_ini, h_fin)
+            except Exception as e:
+                print(f"ERROR: {e}")
 
         elif opcion == '9':
             print("\n--- CANCELAR RESERVA ---")
             id_res = input("ID de la reserva a cancelar: ").strip()
-            gestor.cancelar_reserva(id_res)
+            try:
+                gestor.cancelar_reserva(id_res)
+            except Exception as e:
+                print(f"ERROR: {e}")
 
         elif opcion == '10':
             print("\n--- FILTRAR RESERVAS ---")
@@ -178,15 +215,24 @@ def iniciar_interfaz(gestor: Any) -> None:
             f: str | None = input("Fecha (YYYY-MM-DD): ").strip() or None
             s: str | None = input("ID Sala: ").strip() or None
             u: str | None = input("DNI Usuario: ").strip() or None
-            gestor.filtrar_reservas(fecha=f, id_sala=s, dni_usuario=u)
+            try:
+                gestor.filtrar_reservas(fecha=f, id_sala=s, dni_usuario=u)
+            except Exception as e:
+                print(f"ERROR: {e}")
 
         elif opcion == '11':
             ruta: str = './archivos/' + input("Nombre fichero backup (por defecto backup.pkl): ").strip() or "./archivos/backup.pkl"
-            gestor.guardar_backup(ruta)
+            try:
+                gestor.guardar_backup(ruta)
+            except Exception as e:
+                print(f"ERROR: {e}")
 
         elif opcion == '12':
             ruta = './archivos/' + input("Nombre fichero backup a restaurar (por defecto backup.pkl): ").strip() or "./archivos/backup.pkl"
-            gestor.restaurar_backup(ruta)
+            try:
+                gestor.restaurar_backup(ruta)
+            except Exception as e:
+                print(f"ERROR: {e}")
 
         else:
             print("Opción no válida. Inténtalo de nuevo.")
