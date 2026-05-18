@@ -5,12 +5,13 @@ from entidades.usuario import UsuarioNormal, UsuarioPremium, Admin, Usuario
 from entidades.sala import SalaReuniones, Despacho, EspacioAbierto, Sala
 from entidades.recurso import Recurso
 from entidades.reserva import Reserva
+from servicios.gestorreserva import GestorReservas
 
 # Clase encargada de leer y escribir la información en el disco.
 class Persistencia:
 
     # Guarda las listas de objetos del gestor en diferentes ficheros de texto.
-    def guardar_todos(self, gestor: 'GestorReservas', carpeta: str = "./archivos") -> None:
+    def guardar_todos(self, gestor: GestorReservas, carpeta: str = "./archivos") -> None:
         estado: dict[str, Any] = gestor.obtener_estado()
         try:
             os.makedirs(carpeta, exist_ok=True)
@@ -46,7 +47,7 @@ class Persistencia:
                 f.write(linea)
 
     # Inicializa la recarga de datos guardados y sustituye los de inicio.
-    def cargar_todos(self, gestor: 'GestorReservas', carpeta: str = "./archivos") -> None:
+    def cargar_todos(self, gestor: GestorReservas, carpeta: str = "./archivos") -> None:
         usuarios: list[Usuario] = self._leer_usuarios(f"{carpeta}/usuarios.txt")
         salas: list[Sala] = self._leer_salas(f"{carpeta}/salas.txt")
         reservas: list[Reserva] = self._leer_reservas(f"{carpeta}/reservas.txt", usuarios, salas)
@@ -144,12 +145,12 @@ class Persistencia:
             pass
         return reservas
 
-    def guardar_backup(self, ruta: str, gestor: 'GestorReservas') -> None:
+    def guardar_backup(self, ruta: str, gestor: GestorReservas) -> None:
         estado = gestor.obtener_estado()
         with open(ruta, "wb") as f:
             pickle.dump(estado, f)
 
-    def restaurar_backup(self, ruta: str, gestor: 'GestorReservas') -> bool:
+    def restaurar_backup(self, ruta: str, gestor: GestorReservas) -> bool:
         with open(ruta, "rb") as f:
             estado = pickle.load(f)
         gestor.cargar_estado(estado)

@@ -1,13 +1,15 @@
 from datetime import datetime, date, time, timedelta
+from entidades.usuario import Usuario
+from entidades.sala import Sala
 
 # Representa una reserva del sistema.
 class Reserva:
 
     # Inicializa los atributos de la reserva.
-    def __init__(self, id: str, usuario: 'Usuario', sala: 'Sala', fecha: date, hora_inicio: time, hora_fin: time, num_personas: int) -> None:
+    def __init__(self, id: str, usuario: Usuario, sala: Sala, fecha: date, hora_inicio: time, hora_fin: time, num_personas: int) -> None:
         self.__id: str = id
-        self.__usuario: 'Usuario' = usuario
-        self.__sala: 'Sala' = sala
+        self.__usuario: Usuario = usuario
+        self.__sala: Sala = sala
         self.__fecha: date = fecha
         self.__hora_inicio: time = hora_inicio
         self.__hora_fin: time = hora_fin
@@ -22,19 +24,19 @@ class Reserva:
         self.__id = nuevo_id
 
     @property
-    def usuario(self) -> 'Usuario':
+    def usuario(self) -> Usuario:
         return self.__usuario
 
     @usuario.setter
-    def usuario(self, nuevo_usuario: 'Usuario') -> None:
+    def usuario(self, nuevo_usuario: Usuario) -> None:
         self.__usuario = nuevo_usuario
 
     @property
-    def sala(self) -> 'Sala':
+    def sala(self) -> Sala:
         return self.__sala
 
     @sala.setter
-    def sala(self, nueva_sala: 'Sala') -> None:
+    def sala(self, nueva_sala: Sala) -> None:
         self.__sala = nueva_sala
 
     @property
@@ -69,10 +71,10 @@ class Reserva:
     def num_personas(self, nuevo_num: int) -> None:
         self.__num_personas = nuevo_num
 
-    def get_usuario(self) -> 'Usuario':
+    def get_usuario(self) -> Usuario:
         return self.__usuario
 
-    def get_sala(self) -> 'Sala':
+    def get_sala(self) -> Sala:
         return self.__sala
 
     def get_fecha(self) -> date:
@@ -89,11 +91,11 @@ class Reserva:
         return not otra_capacidad > self.__num_personas
 
     # Valida que el usuario sea el dueño de la reserva.
-    def es_del_usuario(self, usuario: 'Usuario') -> bool:
+    def es_del_usuario(self, usuario: Usuario) -> bool:
         return self.__usuario == usuario
 
     # Valida que la reserva pertenezca a la sala.
-    def es_de_la_sala(self, otra_sala: 'Sala') -> bool:
+    def es_de_la_sala(self, otra_sala: Sala) -> bool:
         return self.__sala == otra_sala
 
     def misma_fecha(self, fecha: date) -> bool:

@@ -1,4 +1,6 @@
 from abc import ABC, abstractmethod
+from entidades.recurso import Recurso
+from entidades.usuario import Usuario
 
 
 # Clase abstracta que sirve de base para las salas.
@@ -10,7 +12,7 @@ class Sala(ABC):
         self.__nombre: str = nombre
         self.__capacidad: int = capacidad
         self.__disponible: bool = disponible
-        self.__recursos: list['Recurso'] = []
+        self.__recursos: list[Recurso] = []
 
     @property
     def id_sala(self) -> str:
@@ -41,7 +43,7 @@ class Sala(ABC):
         self.__disponible = estado
 
     @property
-    def recursos(self) -> list['Recurso']:
+    def recursos(self) -> list[Recurso]:
         return self.__recursos
 
     def get_capacidad(self) -> int:
@@ -73,18 +75,18 @@ class Sala(ABC):
             return True
         return False
 
-    def puede_reservar(self, usuario: 'Usuario') -> bool:
+    def puede_reservar(self, usuario: Usuario) -> bool:
         return True
 
     def es_valida(self) -> bool:
         return self.__capacidad > 0
 
     # Añade un recurso a la lista de recursos de la sala.
-    def agregar_recurso(self, recurso: 'Recurso') -> None:
+    def agregar_recurso(self, recurso: Recurso) -> None:
         self.__recursos.append(recurso)
 
     # Busca y quita un recurso usando su identificador. Devuelve el recurso encontrado.
-    def quitar_recurso(self, id_recurso: str) -> 'Recurso' | None:
+    def quitar_recurso(self, id_recurso: str) -> Recurso | None:
         for recurso in self.__recursos:
             if recurso.coincide_id(id_recurso):
                 self.__recursos.remove(recurso)
