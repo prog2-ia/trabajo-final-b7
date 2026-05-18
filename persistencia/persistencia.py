@@ -6,9 +6,10 @@ from entidades.sala import SalaReuniones, Despacho, EspacioAbierto, Sala
 from entidades.recurso import Recurso
 from entidades.reserva import Reserva
 
-
+# Clase encargada de leer y escribir la información en el disco.
 class Persistencia:
 
+    # Guarda las listas de objetos del gestor en diferentes ficheros de texto.
     def guardar_todos(self, gestor: 'GestorReservas', carpeta: str = "./archivos") -> None:
         estado: dict[str, Any] = gestor.obtener_estado()
         try:
@@ -44,6 +45,7 @@ class Persistencia:
                 linea: str = f"{r.id},{r.get_usuario().get_dni()},{r.get_sala().id_sala},{fecha},{inicio},{fin},{r.num_personas}\n"
                 f.write(linea)
 
+    # Inicializa la recarga de datos guardados y sustituye los de inicio.
     def cargar_todos(self, gestor: 'GestorReservas', carpeta: str = "./archivos") -> None:
         usuarios: list[Usuario] = self._leer_usuarios(f"{carpeta}/usuarios.txt")
         salas: list[Sala] = self._leer_salas(f"{carpeta}/salas.txt")
@@ -62,6 +64,7 @@ class Persistencia:
                 estado["contador_reservas"] = len(estado["reservas"]) + 1
         gestor.cargar_estado(estado)
 
+    # Restaura mediante instanciación de objetos la lista de usuarios.
     def _leer_usuarios(self, ruta: str) -> list[Usuario]:
         usuarios: list[Usuario] = []
         try:
@@ -85,6 +88,7 @@ class Persistencia:
             pass
         return usuarios
 
+    # Restaura la lista de salas instanciando sus clases concretas.
     def _leer_salas(self, ruta: str) -> list[Sala]:
         salas: list[Sala] = []
         try:
@@ -116,6 +120,7 @@ class Persistencia:
             pass
         return salas
 
+    # Restaura reservas validando relaciones entre las clases instanciadas.
     def _leer_reservas(self, ruta: str, usuarios: list[Usuario], salas: list[Sala]) -> list[Reserva]:
         from datetime import datetime
         reservas: list[Reserva] = []
@@ -130,4 +135,22 @@ class Persistencia:
                     fecha = datetime.fromisoformat(fecha_s).date()
                     h_ini = datetime.strptime(inicio_s, "%H:%M").time()
                     h_fin = datetime.strptime(fin_s, "%H:%M").time()
-                    usuario = next((u for u in usuarios if
+                    usuario = next((u for u in usuarios if u.get_dni() == dni_usr), None)
+                    sala = next((s for s in salas if s.id_sala == id_sala), None)
+                    if usuario and sala:
+                        r = Reserva(idr, usuario, sala, fecha, h_ini, h_fin, int(num_personas))
+                        reservas.append(r)
+        except FileNotFoundError:
+            pass
+        return reservas
+
+    def guardar_backup(self, ruta: str, gestor: 'GestorReservas') -> None:
+        estado = gestor.obtener_estado()
+        with open(ruta, "wb") as f:
+            pickle.dump(estado, f)
+
+    def restaurar_backup(self, ruta: str, gestor: 'GestorReservas') -> bool:
+        with open(ruta, "rb") as f:
+            estado = pickle.load(f)
+        gestor.cargar_estado(estado)
+        return True

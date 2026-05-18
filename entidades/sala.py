@@ -1,7 +1,10 @@
 from abc import ABC, abstractmethod
 
+
+# Clase abstracta que sirve de base para las salas.
 class Sala(ABC):
 
+    # Inicializa atributos básicos de una sala.
     def __init__(self, id_sala: str, nombre: str, capacidad: int, disponible: bool = True) -> None:
         self.__id_sala: str = id_sala
         self.__nombre: str = nombre
@@ -44,6 +47,7 @@ class Sala(ABC):
     def get_capacidad(self) -> int:
         return self.__capacidad
 
+    # Método abstracto que usa polimorfismo en las subclases.
     @abstractmethod
     def get_tipo(self) -> str:
         pass
@@ -51,15 +55,18 @@ class Sala(ABC):
     def esta_disponible(self) -> bool:
         return self.__disponible
 
+    # Comprueba la capacidad limite.
     def tiene_capacidad(self, personas: int) -> bool:
         return self.__capacidad >= personas
 
+    # Intenta ocupar la sala. Devuelve True si estaba libre.
     def ocupar(self) -> bool:
         if self.__disponible:
             self.__disponible = False
             return True
         return False
 
+    # Intenta liberar la sala. Devuelve True si estaba ocupada.
     def liberar(self) -> bool:
         if not self.__disponible:
             self.__disponible = True
@@ -72,9 +79,11 @@ class Sala(ABC):
     def es_valida(self) -> bool:
         return self.__capacidad > 0
 
+    # Añade un recurso a la lista de recursos de la sala.
     def agregar_recurso(self, recurso: 'Recurso') -> None:
         self.__recursos.append(recurso)
 
+    # Busca y quita un recurso usando su identificador. Devuelve el recurso encontrado.
     def quitar_recurso(self, id_recurso: str) -> 'Recurso' | None:
         for recurso in self.__recursos:
             if recurso.coincide_id(id_recurso):
@@ -82,6 +91,7 @@ class Sala(ABC):
                 return recurso
         return None
 
+    # Recopila los nombres de recursos en una cadena de texto.
     def listar_nombres_recursos(self) -> str:
         if not self.__recursos:
             return "Ninguno"
@@ -90,12 +100,14 @@ class Sala(ABC):
             nombres.append(r.nombre)
         return ", ".join(nombres)
 
+    # Representación en formato cadena de la sala.
     def __str__(self) -> str:
         estado = "Libre" if self.__disponible else "Ocupada"
         recursos_str = self.listar_nombres_recursos()
         return f"[{self.get_tipo()}] {self.__nombre} (Capacidad: {self.__capacidad}) - {estado} | Recursos: {recursos_str}"
 
 
+# Subclase concreta que hereda de Sala.
 class SalaReuniones(Sala):
 
     def __init__(self, id_sala: str, nombre: str, capacidad: int, disponible: bool = True) -> None:
@@ -115,6 +127,18 @@ class Despacho(Sala):
 
     def get_tipo(self) -> str:
         return "Despacho"
+
+    def puede_reservar(self, usuario: 'Usuario') -> bool:
+        return usuario.es_premium() or usuario.es_admin()
+
+
+class EspacioAbierto(Sala):
+
+    def __init__(self, id_sala: str, nombre: str, capacidad: int, disponible: bool = True) -> None:
+        super().__init__(id_sala, nombre, capacidad, disponible)
+
+    def get_tipo(self) -> str:
+        return "Espacio Abierto"
 
     def puede_reservar(self, usuario: 'Usuario') -> bool:
         return usuario.es_premium() or usuario.es_admin()

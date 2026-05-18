@@ -38,9 +38,7 @@ class Recurso:
     def disponible(self, estado: bool) -> None:
         self.__disponible = estado
 
-    def esta_disponible(self) -> bool:
-        return self.__disponible
-
+    # Intenta reservar el recurso. Devuelve True si estaba libre y se pudo reservar.
     def reservar(self) -> bool:
         if self.__disponible:
             self.__disponible = False
@@ -48,19 +46,18 @@ class Recurso:
         else:
             return False
 
+    # Intenta liberar el recurso. Devuelve True solo si estaba previamente ocupado.
     def liberar(self) -> bool:
         if not self.__disponible:
             self.__disponible = True
             return True
         return False
 
-    def get_tipo(self) -> str:
-        return self.__tipo
-
     def coincide_id(self, otro_id: str) -> bool:
         if otro_id == self.__id:
             return True
         return False
 
+    # Verifica la integridad de los datos de la instancia.
     def es_valido(self) -> bool:
         return (self.__id != "") and (self.__nombre != "") and (self.__tipo is not None)

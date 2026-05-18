@@ -1,7 +1,9 @@
 from datetime import datetime, date, time, timedelta
 
+# Representa una reserva del sistema.
 class Reserva:
 
+    # Inicializa los atributos de la reserva.
     def __init__(self, id: str, usuario: 'Usuario', sala: 'Sala', fecha: date, hora_inicio: time, hora_fin: time, num_personas: int) -> None:
         self.__id: str = id
         self.__usuario: 'Usuario' = usuario
@@ -76,23 +78,28 @@ class Reserva:
     def get_fecha(self) -> date:
         return self.__fecha
 
+    # Calcula el tiempo total de la reserva.
     def duracion(self) -> timedelta:
         inicio_dt = datetime.combine(self.__fecha, self.__hora_inicio)
         fin_dt = datetime.combine(self.__fecha, self.__hora_fin)
         return fin_dt - inicio_dt
 
+    # Comprueba que no se supere la capacidad.
     def capacidad_correcta(self, otra_capacidad: int) -> bool:
         return not otra_capacidad > self.__num_personas
 
+    # Valida que el usuario sea el dueño de la reserva.
     def es_del_usuario(self, usuario: 'Usuario') -> bool:
         return self.__usuario == usuario
 
+    # Valida que la reserva pertenezca a la sala.
     def es_de_la_sala(self, otra_sala: 'Sala') -> bool:
         return self.__sala == otra_sala
 
     def misma_fecha(self, fecha: date) -> bool:
         return self.__fecha == fecha
 
+    # Comprueba que no exista colisión de horas. Devuelve True si se solapan.
     def hay_solape(self, fecha: date, inicio: time, fin: time) -> bool:
         if self.__fecha != fecha:
             return False

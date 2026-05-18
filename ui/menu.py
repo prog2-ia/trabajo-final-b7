@@ -5,6 +5,7 @@ from entidades.usuario import UsuarioNormal, UsuarioPremium, Admin, Usuario
 from entidades.sala import SalaReuniones, Despacho, EspacioAbierto, Sala
 
 
+# Imprime las opciones del menú principal.
 def mostrar_opciones() -> None:
     print("\n" + "=" * 40)
     print("  GESTOR DE RESERVAS COWORKING")
@@ -25,6 +26,7 @@ def mostrar_opciones() -> None:
     print("=" * 40)
 
 
+# Controla el formato de entrada para números enteros mediante un bucle de gestión de excepciones.
 def leer_entero(mensaje: str) -> int:
     while True:
         try:
@@ -33,6 +35,7 @@ def leer_entero(mensaje: str) -> int:
             print("  -> ¡Error! Debes introducir un número entero válido (ej. 10).")
 
 
+# Controla el formato de entrada para números decimales mediante un bucle de gestión de excepciones.
 def leer_flotante(mensaje: str) -> float:
     while True:
         try:
@@ -40,6 +43,7 @@ def leer_flotante(mensaje: str) -> float:
         except ValueError:
             print("  -> ¡Error! Debes introducir un número decimal válido (ej. 10.5).")
 
+# Valida y retorna una opción de las permitidas.
 def leer_opcion(mensaje: str, opciones_validas: list[str]) -> str:
     while True:
         opcion: str = input(mensaje).strip()
@@ -47,6 +51,7 @@ def leer_opcion(mensaje: str, opciones_validas: list[str]) -> str:
             return opcion
         print(f"  -> ¡Error! Opción no válida. Selecciona una de estas: {', '.join(opciones_validas)}")
 
+# Verifica el formato de datos temporales (fecha).
 def leer_fecha(mensaje: str, opcional: bool = False) -> str | None:
     while True:
         fecha_str: str = input(mensaje).strip()
@@ -58,6 +63,7 @@ def leer_fecha(mensaje: str, opcional: bool = False) -> str | None:
         except ValueError:
             print("  -> ¡Error! El formato debe ser YYYY-MM-DD y ser una fecha real (ej. 2024-12-31).")
 
+# Comprueba la congruencia temporal entre dos horas y asegura que la hora de inicio no sea mayor.
 def leer_rango_horas(mensaje_inicio: str, mensaje_fin: str) -> tuple[float, float]:
     while True:
         h_ini: float = leer_flotante(mensaje_inicio)
@@ -66,6 +72,7 @@ def leer_rango_horas(mensaje_inicio: str, mensaje_fin: str) -> tuple[float, floa
             return h_ini, h_fin
         print("  -> ¡Error Lógico! La hora de inicio no puede ser igual o posterior a la hora de fin. Inténtalo de nuevo.")
 
+# Ejecuta el bucle del programa.
 def iniciar_interfaz(gestor: Any) -> None:
     while True:
         mostrar_opciones()

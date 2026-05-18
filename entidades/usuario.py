@@ -1,8 +1,10 @@
 from abc import ABC, abstractmethod
 from typing import Any
 
+# Clase abstracta que define la estructura general de un usuario.
 class Usuario(ABC):
 
+    # Método de inicialización básico del objeto usuario.
     def __init__(self, dni: str, username: str, nombre: str, apellidos: str, email: str, telefono: str, tipo: int) -> None:
         self.__dni: str = dni
         self.__username: str = username
@@ -80,6 +82,7 @@ class Usuario(ABC):
     def get_apellidos(self) -> str:
         return self.__apellidos
 
+    # Concatena nombre y apellidos.
     def get_nombre_completo(self) -> str:
         return self.__apellidos + ", " + self.__nombre
 
@@ -92,9 +95,11 @@ class Usuario(ABC):
     def get_tipo(self) -> int:
         return self.__tipo
 
+    # Identifica si pertenece al grupo de administrador.
     def es_admin(self) -> bool:
         return self.__tipo == 2
 
+    # Averigua si tiene cuenta premium.
     def es_premium(self) -> bool:
         return self.__tipo == 1
 
@@ -133,4 +138,3 @@ class UsuarioPremium(Usuario):
 class Admin(Usuario):
     def __init__(self, dni: str, username: str, nombre: str, apellidos: str, email: str, telefono: str) -> None:
         super().__init__(dni, username, nombre, apellidos, email, telefono, 2)
-

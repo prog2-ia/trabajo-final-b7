@@ -3,7 +3,6 @@
 Se encarga de almacenar usuarios, salas y reservas en memoria y ofrece
 operaciones para crear reservas comprobando permisos, capacidad y solapes.
 """
-
 from typing import Any
 from entidades.reserva import Reserva
 from entidades.usuario import Usuario
@@ -12,7 +11,7 @@ from entidades.recurso import Recurso
 from persistencia.persistencia import Persistencia
 from datetime import datetime, date, time
 
-
+# Validamos que el formato de fecha sea correcto.
 def _comprobar_formato_fecha(fecha: date | str) -> date:
     if isinstance(fecha, date):
         return fecha
@@ -23,7 +22,7 @@ def _comprobar_formato_fecha(fecha: date | str) -> date:
             raise ValueError("Formato de fecha inválido. Use 'YYYY-MM-DD'.")
     raise ValueError("Fecha debe ser datetime.date o string 'YYYY-MM-DD'.")
 
-
+# Validamos que el formato de hora sea la clase requerida.
 def _comprobar_formato_hora(h: time | str | float | int) -> time:
     if isinstance(h, time):
         return h
@@ -42,8 +41,10 @@ def _comprobar_formato_hora(h: time | str | float | int) -> time:
     raise ValueError("Hora debe ser datetime.time, string 'HH:MM' o número (horas).")
 
 
+# Clase centrada en gestionar todo el sistema de la aplicación.
 class GestorReservas:
 
+    # Inicializa las listas de datos y trata de cargar copias si existían.
     def __init__(self) -> None:
         self.__usuarios: list[Usuario] = []
         self.__salas: list[Sala] = []
@@ -55,6 +56,7 @@ class GestorReservas:
         except Exception:
             print("Aviso: no se pudo cargar persistencia al iniciar.")
 
+    # Retorna un diccionario con todas las listas.
     def obtener_estado(self) -> dict[str, Any]:
         return {
             "usuarios": list(self.__usuarios),
@@ -63,12 +65,14 @@ class GestorReservas:
             "contador_reservas": self.__contador_reservas,
         }
 
+    # Restaura dicts de estado hacia sus listas correspondientes.
     def cargar_estado(self, estado: dict[str, Any]) -> None:
         self.__usuarios = estado.get("usuarios", [])
         self.__salas = estado.get("salas", [])
         self.__reservas = estado.get("reservas", [])
         self.__contador_reservas = estado.get("contador_reservas", 1)
 
+    # Añade de forma persistente un usuario en su lista.
     def agregar_usuario(self, usuario: Usuario) -> None:
         self.__usuarios.append(usuario)
         try:
@@ -76,6 +80,7 @@ class GestorReservas:
         except Exception:
             pass
 
+    # Añade de forma persistente una sala en su lista.
     def agregar_sala(self, sala: Sala) -> None:
         self.__salas.append(sala)
         try:
@@ -83,18 +88,21 @@ class GestorReservas:
         except Exception:
             pass
 
+    # Módulo de busqueda simple hacia usuarios mediante DNI.
     def buscar_usuario_por_dni(self, dni: str) -> Usuario | None:
         for usuario in self.__usuarios:
             if usuario.get_dni() == dni:
                 return usuario
         return None
 
+    # Módulo de busqueda simple hacia salas mediante ID.
     def buscar_sala_por_id(self, id_sala: str) -> Sala | None:
         for sala in self.__salas:
             if sala.id_sala == id_sala:
                 return sala
         return None
 
+    # Comprueba logica de tiempo.
     def comprobar_disponibilidad(self, sala: Sala, fecha: date | str, hora_inicio: time | str | float | int,
                                  hora_fin: time | str | float | int) -> bool:
         fecha_n = _comprobar_formato_fecha(fecha)
